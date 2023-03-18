@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx ts-node-dev src/app.ts"
+    "dev": "npx ts-node-dev src/app.ts",
+    "tslint": "tslint -p tsconfig.json",
+    "tslint-fix": "tslint --fix -p tsconfig.json"
   },
   "keywords": [],
   "author": "",
