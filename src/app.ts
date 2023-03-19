@@ -42,7 +42,7 @@ const app = express();
       const json = formatJSONResponse(svar);
       res.status(200).json(json);
     } catch (error) {
-      res.status(400).send('Something went wrong fetching the data')
+      res.status(502).send('Something went wrong fetching the data')
     }
   });
 })();
@@ -141,7 +141,6 @@ async function personSok(personNbr: string): Promise<string> {
     const agent = new https.Agent({
       key: keyPath,
       cert: certPath,
-      rejectUnauthorized: false,
       keepAlive: true
     });
 
