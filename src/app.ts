@@ -3,8 +3,8 @@ import express from 'express';
 import personsok_template from './personsok_template';
 import axios from 'axios';
 import https from 'node:https';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import formatJSONResponse from './formatJSONResponse';
 
 // load the environment variables from the .env file

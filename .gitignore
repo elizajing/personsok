@@ -1,7 +1,6 @@
 wsdl/*
 .DS_Store
 node_modules/
-.env
 coverage
 jest.config.js
 dist
