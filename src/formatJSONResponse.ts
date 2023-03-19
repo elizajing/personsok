@@ -11,16 +11,16 @@ export type JSONObject = { [x: string]: Value };
 
 
 function formatJSONResponse(svar: string): JSONObject {
-    const parser = new DOMParser();
-    const xmlDOM = parser.parseFromString(svar, 'text/xml');
-    const firstLevelNodes = xmlDOM.getElementsByTagName('ns25:PersonsokningSvarspost')[0].childNodes;
+    const parser: DOMParser = new DOMParser();
+    const xmlDOM: Document = parser.parseFromString(svar, 'text/xml');
+    const firstLevelNodes: NodeListOf<ChildNode> = xmlDOM.getElementsByTagName('ns25:PersonsokningSvarspost')[0].childNodes;
 
     const jsonStruct: JSONObject = {};
     for (let i = 0; i < firstLevelNodes.length; i++) {
-        const item = firstLevelNodes[i];
+        const item: ChildNode = firstLevelNodes[i];
         if (item.nodeName !== '#text') {
-            let name = item.nodeName;
-            const value = item.nodeValue;
+            let name: string = item.nodeName;
+            const value: string | null = item.nodeValue;
             if (value !== null && name !== null) {
                 name = splitNameByColon(name);
                 jsonStruct[name] = value;
@@ -29,18 +29,18 @@ function formatJSONResponse(svar: string): JSONObject {
             for (let j = 0; j < item.childNodes.length; j++) {
                 const jItem = item.childNodes[j];
                 if (jItem.nodeName !== '#text') {
-                    let jName = jItem.nodeName;
-                    const jValue = jItem.childNodes[0].nodeValue;
+                    let jName: string = jItem.nodeName;
+                    const jValue: string | null = jItem.childNodes[0].nodeValue;
                     if (jValue !== null && jName !== null) {
                         jName = splitNameByColon(jName);
                         jsonStruct[jName] = jValue;
                     }
 
                     for (let p = 0; p < jItem.childNodes.length; p++) {
-                        const pItem = jItem.childNodes[p];
+                        const pItem: ChildNode = jItem.childNodes[p];
                         if (pItem.nodeName !== '#text') {
-                            let pName = pItem.nodeName;
-                            const pValue = pItem.childNodes[0].nodeValue!;
+                            let pName: string = pItem.nodeName;
+                            const pValue: string = pItem.childNodes[0].nodeValue!;
                             pName = splitNameByColon(pName);
                             jsonStruct[pName] = pValue;
                         }

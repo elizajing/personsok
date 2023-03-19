@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import express, { response } from 'express';
+import express from 'express';
 import personsok_template from './personsok_template';
 import axios from 'axios';
 import https from 'node:https';
@@ -21,27 +21,27 @@ const app = express();
     res.status(200).send('Sök med personnummer');
   });
   app.get('/person', async (req, res) => {
-    const input = ''+req.query.personnummer;
+    const input = '' + req.query.personnummer;
 
-    const validatedFormat = validateFormat(input);
+    const validatedFormat: [boolean, number[]] = validateFormat(input);
     if (!validatedFormat[0]) {
       res.status(400).send('Invalid inputted format of person number');
       return;
     }
 
-    const personNbr = validatedFormat[1];
-    const validPersonNbr = validatePersonNbr(personNbr);
+    const personNbr: number[] = validatedFormat[1];
+    const validPersonNbr: boolean = validatePersonNbr(personNbr);
 
     if (!validPersonNbr) {
       res.status(400).send('Invalid person number');
       return;
     }
 
-    try{
-      const svar = await personSok(input);
+    try {
+      const svar: string = await personSok(input);
       const json = formatJSONResponse(svar);
       res.status(200).json(json);
-    } catch(error) {
+    } catch (error) {
       res.status(400).send('Something went wrong fetching the data')
     }
   });
@@ -59,7 +59,7 @@ function validateFormat(input: string): [boolean, number[]] {
         .filter((i) => i)
         .join('');
     }
-    const isNum = /^\d+$/.test(splitted);
+    const isNum: boolean = /^\d+$/.test(splitted);
     if (isNum) {
       personNbr = splitted.split('').map((i) => +i);
       if (personNbr.length === 12) {
@@ -92,7 +92,7 @@ function validatePersonNbr(personNbr: number[]): boolean {
   checks.push(personNbr[7] * 1);
   checks.push(personNbr[8] * 2);
 
-  const newChecks = checks.map((n) => {
+  const newChecks: number[] = checks.map((n) => {
     if (n >= 10) {
       const tmp = n.toString().split('');
       const newN = +tmp[0].valueOf() + +tmp[1].valueOf();
@@ -102,17 +102,17 @@ function validatePersonNbr(personNbr: number[]): boolean {
     }
   });
 
-  const sum = newChecks
-    .reduce((acc, n) => Number(acc) + Number(n), 0)
+  const sum: string[] = newChecks
+    .reduce((acc, n) => acc + n, 0)
     .toString()
     .split('');
-  const lastDigit = +sum[sum.length - 1];
-  let calculatedChecksum = 10 - lastDigit;
-  
-  if (calculatedChecksum >= 10){
+  const lastDigit: number = +sum[sum.length - 1];
+  let calculatedChecksum: number = 10 - lastDigit;
+
+  if (calculatedChecksum >= 10) {
     calculatedChecksum = Number(calculatedChecksum.toString().split('')[1]);
   }
-  const checkSum = personNbr[personNbr.length - 1];
+  const checkSum: number = personNbr[personNbr.length - 1];
 
   if (calculatedChecksum === checkSum) {
     return true;
@@ -122,21 +122,21 @@ function validatePersonNbr(personNbr: number[]): boolean {
 }
 
 async function personSok(personNbr: string): Promise<string> {
-  const KundNrLeveransMottagare = '500243';
-  const KundNrSlutkund = '500243';
-  const slutAnvandarId = 'bolag-230312';
-  const uppdragId = '637';
-  const url = process.env.BASE_URL!;
+  const KundNrLeveransMottagare: string = '500243';
+  const KundNrSlutkund: string = '500243';
+  const slutAnvandarId: string = 'bolag-230312';
+  const uppdragId: string = '637';
+  const url: string = process.env.BASE_URL!;
 
-  const body = personsok_template(
+  const body: string = personsok_template(
     KundNrLeveransMottagare,
     KundNrSlutkund,
     uppdragId,
     slutAnvandarId,
     personNbr,
   );
-  const keyPath = fs.readFileSync(path.join(__dirname, '../wsdl/bolag-a.key'));
-  const certPath = fs.readFileSync(path.join(__dirname, '../wsdl/bolag-a.crt'));
+  const keyPath: Buffer = fs.readFileSync(path.join(__dirname, '../wsdl/bolag-a.key'));
+  const certPath: Buffer = fs.readFileSync(path.join(__dirname, '../wsdl/bolag-a.crt'));
   try {
     const agent = new https.Agent({
       key: keyPath,
@@ -145,23 +145,21 @@ async function personSok(personNbr: string): Promise<string> {
       keepAlive: true
     });
 
-    const data = body;
-
     const axiosConfig = {
       httpsAgent: agent,
       headers: {
         'Content-Type': 'text/xml',
-       }
+      }
     };
 
-    const response = await axios.post(url, data, axiosConfig).then(r => {
+    const response = await axios.post(url, body, axiosConfig).then(r => {
       return r.data
     })
-    
+
     return response;
   } catch (error) {
     throw error;
   }
 }
 
-export {validateFormat, validatePersonNbr, app};
+export { validateFormat, validatePersonNbr, app };
